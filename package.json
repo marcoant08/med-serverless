@@ -1,6 +1,6 @@
 {
-  "name": "med-leve",
-  "version": "1.0.0",
+  "name": "med-serverless",
+  "version": "0.2.0",
   "description": "API REST com Serverless Framework, TypeScript e AWS Lambda",
   "scripts": {
     "dev": "serverless offline",
@@ -27,6 +27,7 @@
     "typescript": "^5.7.0"
   },
   "dependencies": {
+    "joi": "^18.2.1",
     "uuid": "^11.0.0"
   }
 }

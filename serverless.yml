@@ -17,8 +17,8 @@ custom:
     sourcemap: true
     target: node20
     platform: node
-    external:
-      - uuid
+    exclude:
+      - aws-sdk
 
 functions:
   getAgendas:
