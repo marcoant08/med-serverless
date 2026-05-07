@@ -17,11 +17,20 @@ custom:
     sourcemap: true
     target: node20
     platform: node
+    external:
+      - uuid
 
 functions:
-  hello:
-    handler: src/handlers/hello.handler
+  getAgendas:
+    handler: src/presentation/handlers/get-agendas.handler
     events:
       - http:
-          path: /hello
+          path: /agendas
           method: get
+
+  createAgendamento:
+    handler: src/presentation/handlers/create-agendamento.handler
+    events:
+      - http:
+          path: /agendamento
+          method: post

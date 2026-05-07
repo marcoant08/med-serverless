@@ -4,14 +4,29 @@
   "description": "API REST com Serverless Framework, TypeScript e AWS Lambda",
   "scripts": {
     "dev": "serverless offline",
-    "deploy": "serverless deploy"
+    "deploy": "serverless deploy",
+    "test": "jest",
+    "lint": "eslint src/ tests/",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\""
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.145",
+    "@types/jest": "^29.5.14",
+    "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
     "esbuild": "^0.25.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.4.0",
     "serverless": "^3.39.0",
     "serverless-esbuild": "^1.54.0",
     "serverless-offline": "^13.3.0",
+    "ts-jest": "^29.2.0",
     "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "uuid": "^11.0.0"
   }
 }
