@@ -1,0 +1,17 @@
+{
+  "name": "med-leve",
+  "version": "1.0.0",
+  "description": "API REST com Serverless Framework, TypeScript e AWS Lambda",
+  "scripts": {
+    "dev": "serverless offline",
+    "deploy": "serverless deploy"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.145",
+    "esbuild": "^0.25.0",
+    "serverless": "^3.39.0",
+    "serverless-esbuild": "^1.54.0",
+    "serverless-offline": "^13.3.0",
+    "typescript": "^5.7.0"
+  }
+}
