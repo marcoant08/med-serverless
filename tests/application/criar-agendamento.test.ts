@@ -3,6 +3,7 @@ import { Medico } from '../../src/domain/entities/medico';
 import { IMedicoRepository } from '../../src/domain/repositories/medico-repository';
 import { IAgendamentoRepository } from '../../src/domain/repositories/agendamento-repository';
 import { HorarioIndisponivelError } from '../../src/domain/errors/horario-indisponivel-error';
+import { NaoEncontradoError } from '../../src/domain/errors/nao-encontrado-error';
 import { ValidationError } from '../../src/domain/errors/validation-error';
 
 const medicoMock: Medico = {
@@ -47,7 +48,7 @@ describe('CriarAgendamentoUseCase', () => {
     expect(agendamentoRepo.criar).toHaveBeenCalledTimes(1);
   });
 
-  it('deve lançar ValidationError quando médico não existe', () => {
+  it('deve lançar NaoEncontradoError quando médico não existe', () => {
     const medicoRepo = criarMedicoRepositoryMock(undefined);
     const agendamentoRepo = criarAgendamentoRepositoryMock(false);
     const useCase = new CriarAgendamentoUseCase(medicoRepo, agendamentoRepo);
@@ -58,7 +59,17 @@ describe('CriarAgendamentoUseCase', () => {
         paciente: 'Carlos Almeida',
         data_horario: '2026-06-10 09:00',
       }),
-    ).toThrow(ValidationError);
+    ).toThrow(NaoEncontradoError);
+
+    try {
+      useCase.execute({
+        medico_id: 999,
+        paciente: 'Carlos Almeida',
+        data_horario: '2026-06-10 09:00',
+      });
+    } catch (error) {
+      expect((error as NaoEncontradoError).statusCode).toBe(404);
+    }
   });
 
   it('deve lançar ValidationError quando horário não pertence à agenda do médico', () => {

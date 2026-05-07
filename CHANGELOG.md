@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-07
+
+### Added
+- Erro tipado `NaoEncontradoError` (404) para recursos não encontrados
+
+### Changed
+- Médico não encontrado agora retorna 404 ao invés de 400
+
 ## [0.2.0] - 2026-05-07
 
 ### Added

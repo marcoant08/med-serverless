@@ -1,5 +1,6 @@
 import { Agendamento } from '../../domain/entities/agendamento.js';
 import { HorarioIndisponivelError } from '../../domain/errors/horario-indisponivel-error.js';
+import { NaoEncontradoError } from '../../domain/errors/nao-encontrado-error.js';
 import { ValidationError } from '../../domain/errors/validation-error.js';
 import { IAgendamentoRepository } from '../../domain/repositories/agendamento-repository.js';
 import { IMedicoRepository } from '../../domain/repositories/medico-repository.js';
@@ -26,7 +27,7 @@ export class CriarAgendamentoUseCase {
     const medico = this.medicoRepository.buscarPorId(input.medico_id);
 
     if (!medico) {
-      throw new ValidationError(`Médico com id ${input.medico_id} não encontrado.`);
+      throw new NaoEncontradoError(`Médico com id ${input.medico_id} não encontrado.`);
     }
 
     if (!medico.horarios_disponiveis.includes(input.data_horario)) {
