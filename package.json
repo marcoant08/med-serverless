@@ -6,6 +6,7 @@
     "dev": "serverless offline",
     "deploy": "serverless deploy",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "lint": "eslint src/ tests/",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\""
   },

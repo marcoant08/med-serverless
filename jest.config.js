@@ -11,4 +11,9 @@ module.exports = {
   transform: {
     '^.+\\.ts$': ['ts-jest', { diagnostics: { ignoreCodes: [151002] } }],
   },
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.d.ts',
+  ],
+  coverageReporters: ['text', 'lcov'],
 };
