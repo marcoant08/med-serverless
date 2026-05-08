@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import Joi from 'joi';
+import { ZodSchema } from 'zod';
 import { ValidationError } from '../../domain/errors/validation-error.js';
 
 type LambdaHandler = (
@@ -7,7 +7,7 @@ type LambdaHandler = (
   context: Context,
 ) => Promise<APIGatewayProxyResult>;
 
-export function withValidation(schema: Joi.ObjectSchema, handler: LambdaHandler): LambdaHandler {
+export function withValidation(schema: ZodSchema, handler: LambdaHandler): LambdaHandler {
   return async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
     if (!event.body) {
       throw new ValidationError('O corpo da requisição não pode ser vazio.');
@@ -20,10 +20,10 @@ export function withValidation(schema: Joi.ObjectSchema, handler: LambdaHandler)
       throw new ValidationError('O corpo da requisição deve ser um JSON válido.');
     }
 
-    const { error } = schema.validate(parsed, { abortEarly: false, convert: false });
+    const result = schema.safeParse(parsed);
 
-    if (error) {
-      const mensagem = error.details.map((d) => d.message).join('; ');
+    if (!result.success) {
+      const mensagem = result.error.issues.map((issue) => issue.message).join('; ');
       throw new ValidationError(mensagem);
     }
 

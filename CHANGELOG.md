@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-08
+
+### Changed
+- Substituída biblioteca de validação Joi pelo Zod (v4) no decorator `withValidation` e no handler `create-agendamento`
+- `withValidation` agora recebe `ZodSchema` ao invés de `Joi.ObjectSchema`
+- Schema de validação do POST /agendamento reescrito com `z.object()` e mensagens de erro customizadas
+
+### Removed
+- Dependência `joi` removida do projeto
+
 ## [0.3.0] - 2026-05-07
 
 ### Added
