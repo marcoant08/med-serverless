@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.5] - 2026-05-08
+
+### Added
+- Diretório `src/application/factories/` com factories individuais por use case: `criar-agendamento-factory.ts` e `listar-agendas-factory.ts`
+- Arquivo `src/application/repositories.ts` centralizando os singletons de repositório
+
+### Removed
+- `src/application/container.ts` removido; responsabilidades divididas entre `repositories.ts` e os arquivos de factory
+
 ## [0.5.4] - 2026-05-08
 
 ### Added

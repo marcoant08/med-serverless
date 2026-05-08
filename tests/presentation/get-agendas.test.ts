@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 
-jest.mock('../../src/application/container', () => ({
+jest.mock('../../src/application/factories/listar-agendas-factory', () => ({
   createListarAgendasUseCase: jest.fn(() => ({
     execute: jest.fn(() => ({
       medicos: [

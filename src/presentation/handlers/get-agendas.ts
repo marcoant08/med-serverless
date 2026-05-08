@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { createListarAgendasUseCase } from '../../application/container.js';
+import { createListarAgendasUseCase } from '../../application/factories/listar-agendas-factory.js';
 import { Logger } from '../../infrastructure/logger/logger.js';
 import { withErrorHandler } from '../decorators/with-error-handler.js';
 import { withLogging } from '../decorators/with-logging.js';

@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { createCriarAgendamentoUseCase } from '../../application/container.js';
+import { createCriarAgendamentoUseCase } from '../../application/factories/criar-agendamento-factory.js';
 import { CriarAgendamentoInput } from '../../application/use-cases/criar-agendamento.js';
 import { Logger } from '../../infrastructure/logger/logger.js';
 import { withErrorHandler } from '../decorators/with-error-handler.js';

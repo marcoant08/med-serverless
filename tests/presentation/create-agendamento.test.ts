@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 
 const mockExecute = jest.fn();
 
-jest.mock('../../src/application/container', () => ({
+jest.mock('../../src/application/factories/criar-agendamento-factory', () => ({
   createCriarAgendamentoUseCase: jest.fn(() => ({
     execute: (...args: unknown[]) => mockExecute(...args),
   })),
