@@ -3,6 +3,7 @@
   "version": "0.5.6",
   "description": "API REST com Serverless Framework, TypeScript e AWS Lambda",
   "scripts": {
+    "build": "tsc --project tsconfig.json",
     "dev": "serverless offline",
     "deploy": "serverless deploy",
     "test": "jest",
