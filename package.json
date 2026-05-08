@@ -1,6 +1,6 @@
 {
   "name": "med-serverless",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "API REST com Serverless Framework, TypeScript e AWS Lambda",
   "scripts": {
     "dev": "serverless offline",

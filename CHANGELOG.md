@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-05-08
+
+### Added
+- Enum `ErrorCode` em `src/domain/errors/error-codes.ts` centralizando todos os códigos de erro numéricos da aplicação (`PayloadInvalido`, `NaoEncontrado`, `HorarioIndisponivel`, `RotaNaoEncontrada`, `ErroInterno`)
+
+### Changed
+- Classes de erro (`ValidationError`, `NaoEncontradoError`, `HorarioIndisponivelError`) e `ErrorHandler` passaram a referenciar `ErrorCode` ao invés de strings hardcoded
+- Handler `notFound` atualizado para usar `ErrorCode.RotaNaoEncontrada`
+
 ## [0.5.2] - 2026-05-08
 
 ### Added

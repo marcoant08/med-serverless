@@ -24,10 +24,11 @@ export function errorResponse(
   statusCode: number,
   erro: string,
   mensagem: string,
+  code: string,
 ): APIGatewayProxyResult {
   return {
     statusCode,
     headers: JSON_HEADERS,
-    body: JSON.stringify({ erro, mensagem }),
+    body: JSON.stringify({ code, erro, mensagem }),
   };
 }
