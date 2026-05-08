@@ -1,59 +1,58 @@
 # med-leve — API de Agendamento Médico
 
-API REST para agendamento de consultas médicas, construída com **Node.js**, **TypeScript**, **Serverless Framework** e **AWS Lambda**.
+API REST para agendamento de consultas médicas, construída com **Node.js 20**, **TypeScript**, **Serverless Framework** e **AWS Lambda**.
 
-## Decisões Arquiteturais
+---
 
-O projeto segue os princípios da **Clean Architecture**, organizado em 4 camadas com responsabilidades bem definidas:
-
-```
-src/
-  domain/           → Entidades, interfaces de repositório e erros tipados (camada pura)
-  application/      → Use cases com lógica de negócio e container de DI
-  infrastructure/   → Implementações concretas dos repositórios (dados mockados em memória)
-  presentation/     → Handlers Lambda, decorators e helpers HTTP
-```
-
-### Princípios aplicados
-
-- **Separação de responsabilidades**: handlers são finos e delegam para use cases
-- **Inversão de dependência**: use cases dependem de interfaces (domain), não de implementações concretas (infrastructure)
-- **Erros como fluxo explícito**: erros de negócio são classes tipadas (`HorarioIndisponivelError`, `ValidationError`) com `statusCode` e mapeamento HTTP automático
-- **Decorators para cross-cutting concerns**: `withErrorHandler` e `withValidation` encapsulam tratamento de erros e validação de payload sem poluir os handlers
-
-## Pré-requisitos
-
-- [Node.js v20+](https://nodejs.org/)
-- npm (incluído com o Node.js)
-- [AWS CLI](https://aws.amazon.com/cli/) configurado com credenciais válidas (apenas para deploy)
-
-## Instalação
+## Início rápido
 
 ```bash
+# 1. Instalar dependências
 npm install
-```
 
-## Execução local
-
-Inicia o servidor local usando o plugin `serverless-offline`:
-
-```bash
+# 2. Iniciar servidor local
 npm run dev
 ```
 
 O servidor ficará disponível em `http://localhost:3000`.
 
-### Endpoints
+---
 
-#### GET /agendas
+## Pré-requisitos
 
-Retorna a lista de médicos com seus horários disponíveis.
+| Ferramenta | Versão mínima |
+|---|---|
+| [Node.js](https://nodejs.org/) | 20 |
+| npm | incluído com o Node.js |
+| [AWS CLI](https://aws.amazon.com/cli/) | qualquer (só para deploy) |
+
+---
+
+## Scripts
+
+| Comando | Descrição |
+|---|---|
+| `npm run dev` | Servidor local com `serverless-offline` |
+| `npm run build` | Compila TypeScript para `dist/` |
+| `npm test` | Testes unitários com Jest |
+| `npm run test:coverage` | Testes com relatório de cobertura |
+| `npm run lint` | Lint com ESLint |
+| `npm run format` | Formata código com Prettier |
+| `npm run deploy` | Deploy na AWS |
+
+---
+
+## Endpoints
+
+### GET /agendas
+
+Retorna todos os médicos com seus horários disponíveis.
 
 ```bash
 curl http://localhost:3000/dev/agendas
 ```
 
-Resposta (200):
+Resposta `200`:
 
 ```json
 {
@@ -67,23 +66,16 @@ Resposta (200):
         "2026-06-10 10:00",
         "2026-06-10 11:00"
       ]
-    },
-    {
-      "id": 2,
-      "nome": "Dra. Maria Souza",
-      "especialidade": "Dermatologista",
-      "horarios_disponiveis": [
-        "2026-06-11 14:00",
-        "2026-06-11 15:00"
-      ]
     }
   ]
 }
 ```
 
-#### POST /agendamento
+---
 
-Registra um agendamento de consulta.
+### POST /agendamento
+
+Registra uma consulta para um paciente.
 
 ```bash
 curl -X POST http://localhost:3000/dev/agendamento \
@@ -97,7 +89,15 @@ curl -X POST http://localhost:3000/dev/agendamento \
   }'
 ```
 
-Resposta de sucesso (201):
+**Campos obrigatórios:**
+
+| Campo | Tipo | Formato |
+|---|---|---|
+| `medico_id` | número inteiro | ID do médico retornado pelo GET /agendas |
+| `paciente` | string | Nome do paciente |
+| `data_horario` | string | `"AAAA-MM-DD HH:MM"` (ex.: `"2026-06-10 09:00"`) |
+
+Resposta `201` — sucesso:
 
 ```json
 {
@@ -112,42 +112,78 @@ Resposta de sucesso (201):
 }
 ```
 
-Resposta de conflito (409) — horário já ocupado:
+---
+
+## Respostas de erro
+
+Todos os erros seguem o mesmo formato:
 
 ```json
 {
-  "erro": "Horário indisponível",
-  "mensagem": "O horário solicitado não está mais disponível para este médico."
-}
-```
-
-Resposta de validação (400) — payload inválido:
-
-```json
-{
+  "code": "1001",
   "erro": "Payload inválido",
-  "mensagem": "O campo \"agendamento\" é obrigatório."
+  "mensagem": "Descrição detalhada do problema."
 }
 ```
 
-## Testes
+| `code` | HTTP | `erro` | Situação |
+|---|---|---|---|
+| `1001` | 400 | Payload inválido | Campo ausente ou tipo incorreto |
+| `1002` | 404 | Não encontrado | Médico não existe |
+| `1003` | 409 | Horário indisponível | Horário já agendado |
+| `1004` | 404 | Rota não encontrada | Endpoint inexistente |
+| `9999` | 500 | Erro interno | Erro inesperado no servidor |
 
-Executa os testes unitários com Jest:
+---
 
-```bash
-npm test
+## Estrutura do projeto
+
+```
+src/
+├── domain/                        # Camada pura — sem dependências externas
+│   ├── entities/                  #   Tipos Medico e Agendamento
+│   ├── repositories/              #   Interfaces de repositório
+│   └── errors/                    #   BusinessError, erros tipados e ErrorCode (enum)
+├── application/                   # Regras de negócio
+│   ├── use-cases/                 #   ListarAgendasUseCase, CriarAgendamentoUseCase
+│   ├── factories/                 #   Factories de use cases (injetam Logger + repositórios)
+│   └── repositories.ts            #   Singletons dos repositórios
+├── infrastructure/                # Implementações concretas
+│   ├── logger/                    #   Logger com saída JSON estruturada (CloudWatch)
+│   └── repositories/              #   Repositórios in-memory com dados mockados
+└── presentation/                  # Interface HTTP / Lambda
+    ├── handlers/                  #   get-agendas, create-agendamento, not-found
+    ├── decorators/                #   @withLogging, @withErrorHandler, @withValidation
+    ├── errors/                    #   ErrorHandler centralizado
+    ├── validations/               #   Schemas Zod
+    └── helpers/                   #   Helpers de resposta HTTP
+
+tests/
+├── application/                   # Testes dos use cases
+├── infrastructure/                # Testes do Logger
+└── presentation/                  # Testes dos handlers e decorators
 ```
 
-Os testes cobrem:
-- **Use cases**: lógica de negócio (listagem de agendas, criação de agendamento, conflitos, validações)
-- **Handlers**: integração com decorators, status codes e formato das respostas HTTP
+---
 
-## Lint e Formatação
+## Arquitetura
 
-```bash
-npm run lint       # Verifica erros de lint com ESLint
-npm run format     # Formata o código com Prettier
-```
+O projeto segue **Clean Architecture** com 4 camadas:
+
+- **Domain** — entidades, interfaces e erros tipados; sem dependências externas
+- **Application** — use cases com lógica de negócio; depende apenas de interfaces do domain
+- **Infrastructure** — implementações concretas (repositórios in-memory, logger JSON)
+- **Presentation** — handlers Lambda com decorators `@` para cross-cutting concerns
+
+### Decisões técnicas
+
+- **Zod** para validação de payload com mensagens de erro em português
+- **Decorators TypeScript** (`@withLogging`, `@withErrorHandler`, `@withValidation`) para separar concerns sem poluir handlers
+- **Logger JSON estruturado** compatível com CloudWatch, com `requestId` para rastreamento por request; sem dados pessoais (conformidade LGPD)
+- **Enum `ErrorCode`** centralizando todos os códigos de erro da aplicação
+- **Factories de use cases** para injeção de Logger por request, mantendo repositórios como singletons
+
+---
 
 ## Deploy na AWS
 
@@ -155,64 +191,7 @@ Certifique-se de que o AWS CLI está configurado com credenciais válidas:
 
 ```bash
 npm run deploy
-```
 
-Para deploy em um stage específico:
-
-```bash
+# Para um stage específico:
 npx serverless deploy --stage production
 ```
-
-## Estrutura do projeto
-
-```
-├── src/
-│   ├── domain/                          # Camada pura, sem dependências externas
-│   │   ├── entities/
-│   │   │   ├── medico.ts                #   Interface Medico
-│   │   │   └── agendamento.ts           #   Interface Agendamento
-│   │   ├── repositories/
-│   │   │   ├── medico-repository.ts     #   Interface IMedicoRepository
-│   │   │   └── agendamento-repository.ts#   Interface IAgendamentoRepository
-│   │   └── errors/
-│   │       ├── business-error.ts        #   Classe base de erros de negócio
-│   │       ├── horario-indisponivel-error.ts #   Erro 409
-│   │       └── validation-error.ts      #   Erro 400
-│   ├── application/                     # Use cases e composição
-│   │   ├── use-cases/
-│   │   │   ├── listar-agendas.ts        #   ListarAgendasUseCase
-│   │   │   └── criar-agendamento.ts     #   CriarAgendamentoUseCase
-│   │   └── container.ts                 #   Composição de dependências (DI)
-│   ├── infrastructure/                  # Implementações concretas
-│   │   └── repositories/
-│   │       ├── in-memory-medico-repository.ts      #   Dados mockados
-│   │       └── in-memory-agendamento-repository.ts #   Armazena em memória
-│   └── presentation/                    # Interface HTTP / Lambda
-│       ├── handlers/
-│       │   ├── get-agendas.ts           #   GET /agendas
-│       │   └── create-agendamento.ts    #   POST /agendamento
-│       ├── decorators/
-│       │   ├── with-error-handler.ts    #   Tratamento de erros
-│       │   └── with-validation.ts       #   Validação de payload
-│       └── helpers/
-│           └── http-response.ts         #   Helpers de resposta HTTP
-├── tests/
-│   ├── application/                     #   Testes dos use cases
-│   └── presentation/                   #   Testes dos handlers
-├── serverless.yml                       # Configuração Serverless Framework
-├── tsconfig.json                        # Configuração TypeScript
-├── jest.config.js                       # Configuração Jest
-├── .eslintrc.json                       # Configuração ESLint
-├── .prettierrc                          # Configuração Prettier
-└── package.json                         # Dependências e scripts
-```
-
-## Scripts disponíveis
-
-| Comando          | Descrição                                      |
-| ---------------- | ---------------------------------------------- |
-| `npm run dev`    | Inicia o servidor local com serverless-offline |
-| `npm run deploy` | Faz deploy da aplicação na AWS                 |
-| `npm test`       | Executa os testes unitários                    |
-| `npm run lint`   | Verifica erros de lint                         |
-| `npm run format` | Formata o código com Prettier                  |
