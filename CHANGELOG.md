@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-05-08
+
+### Added
+- Classe `ErrorHandler` em `src/presentation/errors/error-handler.ts` como ponto centralizado de mapeamento de erros para respostas HTTP
+- Testes unitários para `ErrorHandler` cobrindo todos os tipos de erro de domínio e erros inesperados
+
+### Changed
+- `withErrorHandler` delegado ao `ErrorHandler` centralizado, removendo lógica de mapeamento inline do decorator
+
 ## [0.4.0] - 2026-05-08
 
 ### Changed
