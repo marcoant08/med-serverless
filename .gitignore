@@ -3,3 +3,5 @@ dist/
 .serverless/
 .esbuild/
 coverage/
+.env
+.env.*
