@@ -3,9 +3,9 @@ import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 const mockExecute = jest.fn();
 
 jest.mock('../../src/application/container', () => ({
-  criarAgendamentoUseCase: {
+  createCriarAgendamentoUseCase: jest.fn(() => ({
     execute: (...args: unknown[]) => mockExecute(...args),
-  },
+  })),
 }));
 
 import { handler } from '../../src/presentation/handlers/create-agendamento';

@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 
 jest.mock('../../src/application/container', () => ({
-  listarAgendasUseCase: {
+  createListarAgendasUseCase: jest.fn(() => ({
     execute: jest.fn(() => ({
       medicos: [
         {
@@ -12,7 +12,7 @@ jest.mock('../../src/application/container', () => ({
         },
       ],
     })),
-  },
+  })),
 }));
 
 import { handler } from '../../src/presentation/handlers/get-agendas';

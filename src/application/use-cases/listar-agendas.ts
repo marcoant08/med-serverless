@@ -1,6 +1,7 @@
 import { Medico } from '../../domain/entities/medico.js';
 import { IMedicoRepository } from '../../domain/repositories/medico-repository.js';
 import { IAgendamentoRepository } from '../../domain/repositories/agendamento-repository.js';
+import { Logger } from '../../infrastructure/logger/logger.js';
 
 interface MedicoComHorariosDisponiveis {
   readonly id: number;
@@ -17,9 +18,11 @@ export class ListarAgendasUseCase {
   constructor(
     private readonly medicoRepository: IMedicoRepository,
     private readonly agendamentoRepository: IAgendamentoRepository,
+    private readonly logger: Logger,
   ) {}
 
   execute(): ListarAgendasOutput {
+    this.logger.info('buscando agendamentos');
     const medicos = this.medicoRepository.listarTodos();
 
     const medicosComDisponibilidade = medicos.map((medico) =>

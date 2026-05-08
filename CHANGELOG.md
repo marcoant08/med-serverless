@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-05-08
+
+### Added
+- `Logger` em `src/infrastructure/logger/logger.ts` com saída JSON estruturada para stdout (CloudWatch compatível), incluindo `timestamp`, `level`, `requestId` (tracer) e `context`
+- Decorator `withLogging` que loga `request recebida` e `request concluida` (method, path, statusCode, durationMs) sem expor dados do body
+- Logs de rastreamento de negócio em `CriarAgendamentoUseCase`: `buscando medico`, `medico encontrado`, `verificando conflito de agendamento`, `adicionando agendamento`, `agendamento adicionado`
+- Log `buscando agendamentos` em `ListarAgendasUseCase`
+- Testes unitários para `Logger` e `withLogging`, incluindo verificações de conformidade com LGPD
+
+### Changed
+- `ErrorHandler` recebe `Logger` via construtor; loga `warn` para `BusinessError` (sem `message`, que pode conter dados pessoais) e `error` com stack para erros inesperados
+- `withErrorHandler` instancia `Logger` e `ErrorHandler` por request usando o `context.awsRequestId` como tracer
+- `Logger` injetado via construtor nos use cases; `container.ts` convertido para exportar factories de use cases (`createCriarAgendamentoUseCase`, `createListarAgendasUseCase`) mantendo repositórios como singletons
+- Handlers aplicam `withLogging` como decorator mais externo: `withLogging(withErrorHandler(...))`
+
 ## [0.4.1] - 2026-05-08
 
 ### Added

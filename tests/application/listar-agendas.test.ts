@@ -1,8 +1,13 @@
 import { ListarAgendasUseCase } from '../../src/application/use-cases/listar-agendas';
+import { Logger } from '../../src/infrastructure/logger/logger';
 import { Medico } from '../../src/domain/entities/medico';
 import { Agendamento } from '../../src/domain/entities/agendamento';
 import { IMedicoRepository } from '../../src/domain/repositories/medico-repository';
 import { IAgendamentoRepository } from '../../src/domain/repositories/agendamento-repository';
+
+function criarLoggerMock(): jest.Mocked<Logger> {
+  return { info: jest.fn(), warn: jest.fn(), error: jest.fn() } as unknown as jest.Mocked<Logger>;
+}
 
 function criarMedicoRepositoryMock(medicos: Medico[]): IMedicoRepository {
   return {
@@ -40,7 +45,7 @@ describe('ListarAgendasUseCase', () => {
   it('deve retornar todos os médicos com seus horários disponíveis', () => {
     const medicoRepo = criarMedicoRepositoryMock(medicosMock);
     const agendamentoRepo = criarAgendamentoRepositoryMock([]);
-    const useCase = new ListarAgendasUseCase(medicoRepo, agendamentoRepo);
+    const useCase = new ListarAgendasUseCase(medicoRepo, agendamentoRepo, criarLoggerMock());
 
     const resultado = useCase.execute();
 
@@ -64,7 +69,7 @@ describe('ListarAgendasUseCase', () => {
 
     const medicoRepo = criarMedicoRepositoryMock(medicosMock);
     const agendamentoRepo = criarAgendamentoRepositoryMock([agendamentoExistente]);
-    const useCase = new ListarAgendasUseCase(medicoRepo, agendamentoRepo);
+    const useCase = new ListarAgendasUseCase(medicoRepo, agendamentoRepo, criarLoggerMock());
 
     const resultado = useCase.execute();
 
@@ -85,10 +90,21 @@ describe('ListarAgendasUseCase', () => {
 
     const medicoRepo = criarMedicoRepositoryMock(medicosMock);
     const agendamentoRepo = criarAgendamentoRepositoryMock(agendamentos);
-    const useCase = new ListarAgendasUseCase(medicoRepo, agendamentoRepo);
+    const useCase = new ListarAgendasUseCase(medicoRepo, agendamentoRepo, criarLoggerMock());
 
     const resultado = useCase.execute();
 
     expect(resultado.medicos[1].horarios_disponiveis).toEqual([]);
+  });
+
+  it('deve emitir log de rastreamento ao buscar agendamentos', () => {
+    const medicoRepo = criarMedicoRepositoryMock(medicosMock);
+    const agendamentoRepo = criarAgendamentoRepositoryMock([]);
+    const logger = criarLoggerMock();
+    const useCase = new ListarAgendasUseCase(medicoRepo, agendamentoRepo, logger);
+
+    useCase.execute();
+
+    expect(logger.info).toHaveBeenCalledWith('buscando agendamentos');
   });
 });

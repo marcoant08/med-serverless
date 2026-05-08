@@ -1,8 +1,10 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { z } from 'zod';
-import { criarAgendamentoUseCase } from '../../application/container.js';
+import { createCriarAgendamentoUseCase } from '../../application/container.js';
 import { CriarAgendamentoInput } from '../../application/use-cases/criar-agendamento.js';
+import { Logger } from '../../infrastructure/logger/logger.js';
 import { withErrorHandler } from '../decorators/with-error-handler.js';
+import { withLogging } from '../decorators/with-logging.js';
 import { withValidation } from '../decorators/with-validation.js';
 import { created } from '../helpers/http-response.js';
 
@@ -27,12 +29,14 @@ const agendamentoSchema = z.object({
 
 const createAgendamento = async (
   event: APIGatewayProxyEvent,
-  _context: Context,
+  context: Context,
 ): Promise<APIGatewayProxyResult> => {
+  const logger = new Logger(context.awsRequestId);
+  const useCase = createCriarAgendamentoUseCase(logger);
   const body = JSON.parse(event.body!) as { agendamento: CriarAgendamentoInput };
 
-  const resultado = criarAgendamentoUseCase.execute(body.agendamento);
+  const resultado = useCase.execute(body.agendamento);
   return created(resultado as unknown as Record<string, unknown>);
 };
 
-export const handler = withErrorHandler(withValidation(agendamentoSchema, createAgendamento));
+export const handler = withLogging(withErrorHandler(withValidation(agendamentoSchema, createAgendamento)));
