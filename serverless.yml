@@ -34,3 +34,10 @@ functions:
       - http:
           path: /agendamento
           method: post
+
+  notFound:
+    handler: src/presentation/handlers/not-found.handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: any

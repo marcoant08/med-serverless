@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-05-08
+
+### Added
+- Handler `notFound` em `src/presentation/handlers/not-found.ts` que retorna 404 no formato padrão da API (`{ erro, mensagem }`) para rotas não mapeadas
+- Rota catch-all `/{proxy+}` com método `any` registrada em `serverless.yml` após as demais rotas, substituindo o erro padrão do serverless-offline
+
 ## [0.5.0] - 2026-05-08
 
 ### Added
