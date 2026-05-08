@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.4] - 2026-05-08
+
+### Added
+- Validação de formato e calendário para `agendamento.data_horario`: regex `AAAA-MM-DD HH:MM` seguida de `Date.parse` para garantir data real
+
+### Changed
+- Mensagens de erro do schema Zod diferenciam campo ausente (`"é obrigatório"`) de tipo incorreto (`"deve ser uma string/número"`) usando função `error` com `issue.input === undefined`
+
 ## [0.5.3] - 2026-05-08
 
 ### Added

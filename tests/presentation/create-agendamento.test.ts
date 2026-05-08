@@ -102,6 +102,24 @@ describe('POST /agendamento handler', () => {
     expect(response.statusCode).toBe(400);
   });
 
+  it('deve retornar 400 quando paciente é do tipo errado', async () => {
+    const evento = criarEventoMock({
+      agendamento: {
+        medico_id: 1,
+        paciente: 2,
+        data_horario: '2026-06-10 09:00',
+      },
+    });
+
+    const resultado = await handler(evento, {} as Context);
+
+    const response = resultado as { statusCode: number; body: string };
+    expect(response.statusCode).toBe(400);
+
+    const body = JSON.parse(response.body);
+    expect(body.mensagem).toBe('O campo "agendamento.paciente" deve ser uma string.');
+  });
+
   it('deve retornar 400 quando paciente está vazio', async () => {
     const evento = criarEventoMock({
       agendamento: {
