@@ -6,8 +6,14 @@ type LambdaHandler = (
   context: Context,
 ) => Promise<APIGatewayProxyResult>;
 
-export function withLogging(handler: LambdaHandler): LambdaHandler {
-  return async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export function withLogging(
+  _target: object,
+  _key: string,
+  descriptor: PropertyDescriptor,
+): PropertyDescriptor {
+  const original = descriptor.value as LambdaHandler;
+
+  descriptor.value = async function (event: APIGatewayProxyEvent, context: Context) {
     const logger = new Logger(context.awsRequestId);
     const start = Date.now();
 
@@ -16,7 +22,7 @@ export function withLogging(handler: LambdaHandler): LambdaHandler {
       path: event.path,
     });
 
-    const result = await handler(event, context);
+    const result = await original(event, context);
 
     logger.info('request concluida', {
       method: event.httpMethod,
@@ -27,4 +33,6 @@ export function withLogging(handler: LambdaHandler): LambdaHandler {
 
     return result;
   };
+
+  return descriptor;
 }

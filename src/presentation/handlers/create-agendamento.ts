@@ -27,16 +27,20 @@ const agendamentoSchema = z.object({
     .required(),
 });
 
-const createAgendamento = async (
-  event: APIGatewayProxyEvent,
-  context: Context,
-): Promise<APIGatewayProxyResult> => {
-  const logger = new Logger(context.awsRequestId);
-  const useCase = createCriarAgendamentoUseCase(logger);
-  const body = JSON.parse(event.body!) as { agendamento: CriarAgendamentoInput };
+class CreateAgendamentoHandler {
+  @withLogging
+  @withErrorHandler
+  @withValidation(agendamentoSchema)
+  static async handle(
+    event: APIGatewayProxyEvent,
+    context: Context,
+  ): Promise<APIGatewayProxyResult> {
+    const logger = new Logger(context.awsRequestId);
+    const useCase = createCriarAgendamentoUseCase(logger);
+    const body = JSON.parse(event.body!) as { agendamento: CriarAgendamentoInput };
+    const resultado = useCase.execute(body.agendamento);
+    return created(resultado as unknown as Record<string, unknown>);
+  }
+}
 
-  const resultado = useCase.execute(body.agendamento);
-  return created(resultado as unknown as Record<string, unknown>);
-};
-
-export const handler = withLogging(withErrorHandler(withValidation(agendamentoSchema, createAgendamento)));
+export const handler = CreateAgendamentoHandler.handle.bind(CreateAgendamentoHandler);

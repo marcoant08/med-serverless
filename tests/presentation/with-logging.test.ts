@@ -24,11 +24,26 @@ function criarContextoMock(requestId = 'req-teste'): Context {
   return { awsRequestId: requestId } as Context;
 }
 
+const innerMock = jest.fn<Promise<APIGatewayProxyResult>, [APIGatewayProxyEvent, Context]>();
+
+class TestHandler {
+  @withLogging
+  static async handle(
+    event: APIGatewayProxyEvent,
+    context: Context,
+  ): Promise<APIGatewayProxyResult> {
+    return innerMock(event, context);
+  }
+}
+
+const decoratedHandler = TestHandler.handle.bind(TestHandler);
+
 describe('withLogging', () => {
   let consoleSpy: jest.SpyInstance;
 
   beforeEach(() => {
     consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    innerMock.mockReset();
   });
 
   afterEach(() => {
@@ -36,66 +51,52 @@ describe('withLogging', () => {
   });
 
   function entradasLogadas(): LogEntry[] {
-    return consoleSpy.mock.calls.map((c) => JSON.parse(c[0]) as LogEntry);
+    return consoleSpy.mock.calls.map((c) => JSON.parse(c[0] as string) as LogEntry);
   }
 
   it('deve emitir log de request recebida com method e path', async () => {
-    const innerHandler = jest.fn(async (): Promise<APIGatewayProxyResult> => ({
-      statusCode: 200,
-      body: '{}',
-      headers: {},
-    }));
+    innerMock.mockResolvedValue({ statusCode: 200, body: '{}', headers: {} });
 
-    const handler = withLogging(innerHandler);
-    await handler(criarEventoMock({ httpMethod: 'GET', path: '/agendas' }), criarContextoMock());
+    await decoratedHandler(
+      criarEventoMock({ httpMethod: 'GET', path: '/agendas' }),
+      criarContextoMock(),
+    );
 
     const entradas = entradasLogadas();
-    const logRecebida = entradas.find((e) => e.message === 'request recebida');
+    const logRecebida = entradas.find((e) => e.message === '[request recebida]');
     expect(logRecebida).toBeDefined();
     expect(logRecebida?.context?.method).toBe('GET');
     expect(logRecebida?.context?.path).toBe('/agendas');
   });
 
   it('deve emitir log de request concluida com statusCode e durationMs', async () => {
-    const innerHandler = jest.fn(async (): Promise<APIGatewayProxyResult> => ({
-      statusCode: 201,
-      body: '{}',
-      headers: {},
-    }));
+    innerMock.mockResolvedValue({ statusCode: 201, body: '{}', headers: {} });
 
-    const handler = withLogging(innerHandler);
-    await handler(criarEventoMock({ httpMethod: 'POST', path: '/agendamento' }), criarContextoMock());
+    await decoratedHandler(
+      criarEventoMock({ httpMethod: 'POST', path: '/agendamento' }),
+      criarContextoMock(),
+    );
 
     const entradas = entradasLogadas();
-    const logConcluida = entradas.find((e) => e.message === 'request concluida');
+    const logConcluida = entradas.find((e) => e.message === '[request concluida]');
     expect(logConcluida).toBeDefined();
     expect(logConcluida?.context?.statusCode).toBe(201);
     expect(typeof logConcluida?.context?.durationMs).toBe('number');
   });
 
   it('deve usar o awsRequestId como requestId em todos os logs', async () => {
-    const innerHandler = jest.fn(async (): Promise<APIGatewayProxyResult> => ({
-      statusCode: 200,
-      body: '{}',
-      headers: {},
-    }));
+    innerMock.mockResolvedValue({ statusCode: 200, body: '{}', headers: {} });
 
-    const handler = withLogging(innerHandler);
-    await handler(criarEventoMock(), criarContextoMock('meu-tracer-id'));
+    await decoratedHandler(criarEventoMock(), criarContextoMock('meu-tracer-id'));
 
     const entradas = entradasLogadas();
     entradas.forEach((e) => expect(e.requestId).toBe('meu-tracer-id'));
   });
 
   it('não deve logar nenhum dado do body da requisição', async () => {
-    const innerHandler = jest.fn(async (): Promise<APIGatewayProxyResult> => ({
-      statusCode: 201,
-      body: '{}',
-      headers: {},
-    }));
+    innerMock.mockResolvedValue({ statusCode: 201, body: '{}', headers: {} });
 
-    const handler = withLogging(innerHandler);
-    await handler(
+    await decoratedHandler(
       criarEventoMock({ body: JSON.stringify({ agendamento: { paciente: 'Carlos Almeida' } }) }),
       criarContextoMock(),
     );
@@ -106,11 +107,14 @@ describe('withLogging', () => {
   });
 
   it('deve retornar a resposta original do handler', async () => {
-    const respostaEsperada: APIGatewayProxyResult = { statusCode: 200, body: '{"ok":true}', headers: {} };
-    const innerHandler = jest.fn(async () => respostaEsperada);
+    const respostaEsperada: APIGatewayProxyResult = {
+      statusCode: 200,
+      body: '{"ok":true}',
+      headers: {},
+    };
+    innerMock.mockResolvedValue(respostaEsperada);
 
-    const handler = withLogging(innerHandler);
-    const resultado = await handler(criarEventoMock(), criarContextoMock());
+    const resultado = await decoratedHandler(criarEventoMock(), criarContextoMock());
 
     expect(resultado).toEqual(respostaEsperada);
   });

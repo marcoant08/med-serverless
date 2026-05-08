@@ -25,7 +25,7 @@ describe('Logger', () => {
     expect(new Date(entrada.timestamp).toISOString()).toBe(entrada.timestamp);
     expect(entrada.level).toBe('INFO');
     expect(entrada.requestId).toBe('req-123');
-    expect(entrada.message).toBe('teste');
+    expect(entrada.message).toBe('[teste]');
   });
 
   it('deve incluir o context quando fornecido', () => {
@@ -50,7 +50,7 @@ describe('Logger', () => {
 
     const entrada = ultimaEntradaLogada();
     expect(entrada.level).toBe('WARN');
-    expect(entrada.message).toBe('aviso');
+    expect(entrada.message).toBe('[aviso]');
   });
 
   it('deve emitir level ERROR corretamente', () => {
@@ -59,7 +59,7 @@ describe('Logger', () => {
 
     const entrada = ultimaEntradaLogada();
     expect(entrada.level).toBe('ERROR');
-    expect(entrada.message).toBe('erro grave');
+    expect(entrada.message).toBe('[erro grave]');
   });
 
   it('deve funcionar sem requestId', () => {
@@ -68,7 +68,7 @@ describe('Logger', () => {
 
     const entrada = ultimaEntradaLogada();
     expect(entrada.requestId).toBeUndefined();
-    expect(entrada.message).toBe('sem request id');
+    expect(entrada.message).toBe('[sem request id]');
   });
 
   it('o requestId deve ser o tracer propagado em todos os logs da mesma instância', () => {

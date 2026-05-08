@@ -7,13 +7,21 @@ type LambdaHandler = (
   context: Context,
 ) => Promise<APIGatewayProxyResult>;
 
-export function withErrorHandler(handler: LambdaHandler): LambdaHandler {
-  return async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export function withErrorHandler(
+  _target: object,
+  _key: string,
+  descriptor: PropertyDescriptor,
+): PropertyDescriptor {
+  const original = descriptor.value as LambdaHandler;
+
+  descriptor.value = async function (event: APIGatewayProxyEvent, context: Context) {
     const logger = new Logger(context.awsRequestId);
     try {
-      return await handler(event, context);
+      return await original(event, context);
     } catch (error) {
       return new ErrorHandler(logger).handle(error);
     }
   };
+
+  return descriptor;
 }
