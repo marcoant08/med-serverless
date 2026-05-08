@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-05-08
+
+### Added
+- Diretório `src/presentation/validations/` para schemas Zod; schema de agendamento extraído para `agendamento-schema.ts`
+
+### Changed
+- Decorators (`withLogging`, `withErrorHandler`, `withValidation`) convertidos para TypeScript method decorators aplicáveis com `@`; handlers encapsulados em classes com método estático
+- `tsconfig.json` com `experimentalDecorators: true`
+- Mensagens de log circundadas por colchetes `[]` (ex.: `[request recebida]`)
+
 ## [0.5.1] - 2026-05-08
 
 ### Added
