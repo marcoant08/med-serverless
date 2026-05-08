@@ -14,6 +14,30 @@ const MEDICOS_MOCK: Medico[] = [
     especialidade: 'Dermatologista',
     horarios_disponiveis: ['2026-06-11 14:00', '2026-06-11 15:00'],
   },
+  {
+    id: 3,
+    nome: 'Dr. Carlos Mendes',
+    especialidade: 'Ortopedista',
+    horarios_disponiveis: ['2026-06-12 08:00', '2026-06-12 09:00', '2026-06-12 10:00'],
+  },
+  {
+    id: 4,
+    nome: 'Dra. Ana Ferreira',
+    especialidade: 'Neurologista',
+    horarios_disponiveis: ['2026-06-13 13:00', '2026-06-13 14:00', '2026-06-13 15:00'],
+  },
+  {
+    id: 5,
+    nome: 'Dr. Paulo Rocha',
+    especialidade: 'Clínico Geral',
+    horarios_disponiveis: ['2026-06-10 14:00', '2026-06-10 15:00', '2026-06-11 08:00', '2026-06-11 09:00'],
+  },
+  {
+    id: 6,
+    nome: 'Dra. Beatriz Lima',
+    especialidade: 'Pediatra',
+    horarios_disponiveis: ['2026-06-12 11:00', '2026-06-12 14:00', '2026-06-13 08:00'],
+  },
 ];
 
 export class InMemoryMedicoRepository implements IMedicoRepository {

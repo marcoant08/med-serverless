@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.6] - 2026-05-08
+
+### Changed
+- `MEDICOS_MOCK` expandido com 4 novos médicos: Dr. Carlos Mendes (Ortopedista), Dra. Ana Ferreira (Neurologista), Dr. Paulo Rocha (Clínico Geral) e Dra. Beatriz Lima (Pediatra)
+
 ## [0.5.5] - 2026-05-08
 
 ### Added
