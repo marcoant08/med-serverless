@@ -1,58 +1,39 @@
-import { APIGatewayProxyEvent } from 'aws-lambda';
-import { handler } from '../../src/presentation/handlers/not-found';
+import request from 'supertest';
+import { createApp } from './helpers/app';
 
-function evento(method: string, path: string): APIGatewayProxyEvent {
-  return {
-    httpMethod: method,
-    path,
-    body: null,
-    headers: {},
-    multiValueHeaders: {},
-    isBase64Encoded: false,
-    pathParameters: null,
-    queryStringParameters: null,
-    multiValueQueryStringParameters: null,
-    stageVariables: null,
-    requestContext: {} as APIGatewayProxyEvent['requestContext'],
-    resource: '',
-  };
-}
+const app = createApp();
 
 describe('E2E rotas não encontradas', () => {
   it('deve retornar 404 para rota inexistente', async () => {
-    const resultado = await handler(evento('GET', '/rota-inexistente'));
+    const res = await request(app).get('/rota-inexistente');
 
-    expect(resultado.statusCode).toBe(404);
+    expect(res.status).toBe(404);
   });
 
   it('deve retornar code 1004 e erro "Rota não encontrada"', async () => {
-    const resultado = await handler(evento('GET', '/rota-inexistente'));
-    const body = JSON.parse(resultado.body);
+    const res = await request(app).get('/rota-inexistente');
 
-    expect(body.code).toBe('1004');
-    expect(body.erro).toBe('Rota não encontrada');
+    expect(res.body.code).toBe('1004');
+    expect(res.body.erro).toBe('Rota não encontrada');
   });
 
   it('deve incluir o método HTTP e o path na mensagem', async () => {
-    const resultado = await handler(evento('DELETE', '/recurso'));
-    const body = JSON.parse(resultado.body);
+    const res = await request(app).delete('/recurso');
 
-    expect(body.mensagem).toContain('DELETE');
-    expect(body.mensagem).toContain('/recurso');
+    expect(res.body.mensagem).toContain('DELETE');
+    expect(res.body.mensagem).toContain('/recurso');
   });
 
   it('deve retornar Content-Type application/json', async () => {
-    const resultado = await handler(evento('POST', '/nao-existe'));
+    const res = await request(app).post('/nao-existe');
 
-    expect(resultado.headers?.['Content-Type']).toBe('application/json');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
   });
 
   it('deve funcionar para qualquer método HTTP', async () => {
-    const metodos = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
-
-    for (const metodo of metodos) {
-      const resultado = await handler(evento(metodo, '/qualquer'));
-      expect(resultado.statusCode).toBe(404);
+    for (const method of ['get', 'post', 'put', 'patch', 'delete'] as const) {
+      const res = await request(app)[method]('/qualquer');
+      expect(res.status).toBe(404);
     }
   });
 });

@@ -1,41 +1,21 @@
-import { APIGatewayProxyEvent, Context } from 'aws-lambda';
-import { handler } from '../../src/presentation/handlers/get-agendas';
+import request from 'supertest';
+import { createApp } from './helpers/app';
 
-const contexto = {} as Context;
-
-function evento(): APIGatewayProxyEvent {
-  return {
-    httpMethod: 'GET',
-    path: '/agendas',
-    body: null,
-    headers: {},
-    multiValueHeaders: {},
-    isBase64Encoded: false,
-    pathParameters: null,
-    queryStringParameters: null,
-    multiValueQueryStringParameters: null,
-    stageVariables: null,
-    requestContext: {} as APIGatewayProxyEvent['requestContext'],
-    resource: '',
-  };
-}
+const app = createApp();
 
 describe('E2E GET /agendas', () => {
   it('deve retornar 200 com lista de médicos', async () => {
-    const resultado = await handler(evento(), contexto);
+    const res = await request(app).get('/agendas');
 
-    expect(resultado.statusCode).toBe(200);
-
-    const body = JSON.parse(resultado.body);
-    expect(body.medicos).toBeDefined();
-    expect(Array.isArray(body.medicos)).toBe(true);
-    expect(body.medicos.length).toBeGreaterThan(0);
+    expect(res.status).toBe(200);
+    expect(res.body.medicos).toBeDefined();
+    expect(Array.isArray(res.body.medicos)).toBe(true);
+    expect(res.body.medicos.length).toBeGreaterThan(0);
   });
 
   it('deve retornar médicos com os campos id, nome, especialidade e horarios_disponiveis', async () => {
-    const resultado = await handler(evento(), contexto);
-    const body = JSON.parse(resultado.body);
-    const medico = body.medicos[0];
+    const res = await request(app).get('/agendas');
+    const medico = res.body.medicos[0];
 
     expect(medico).toHaveProperty('id');
     expect(medico).toHaveProperty('nome');
@@ -45,41 +25,21 @@ describe('E2E GET /agendas', () => {
   });
 
   it('deve retornar Content-Type application/json', async () => {
-    const resultado = await handler(evento(), contexto);
+    const res = await request(app).get('/agendas');
 
-    expect(resultado.headers?.['Content-Type']).toBe('application/json');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
   });
 
   it('deve excluir horários já agendados da disponibilidade do médico', async () => {
-    const { handler: criarHandler } = await import(
-      '../../src/presentation/handlers/create-agendamento'
-    );
-
     const slotOcupado = '2026-06-10 09:00';
 
-    await criarHandler(
-      {
-        httpMethod: 'POST',
-        path: '/agendamento',
-        body: JSON.stringify({
-          agendamento: { medico_id: 1, paciente: 'Paciente Teste', data_horario: slotOcupado },
-        }),
-        headers: {},
-        multiValueHeaders: {},
-        isBase64Encoded: false,
-        pathParameters: null,
-        queryStringParameters: null,
-        multiValueQueryStringParameters: null,
-        stageVariables: null,
-        requestContext: {} as APIGatewayProxyEvent['requestContext'],
-        resource: '',
-      } as APIGatewayProxyEvent,
-      contexto,
-    );
+    await request(app)
+      .post('/agendamento')
+      .send({ agendamento: { medico_id: 1, paciente: 'Paciente Teste', data_horario: slotOcupado } })
+      .expect(201);
 
-    const resultado = await handler(evento(), contexto);
-    const body = JSON.parse(resultado.body);
-    const medicoId1 = body.medicos.find((m: { id: number }) => m.id === 1);
+    const res = await request(app).get('/agendas');
+    const medicoId1 = res.body.medicos.find((m: { id: number }) => m.id === 1);
 
     expect(medicoId1.horarios_disponiveis).not.toContain(slotOcupado);
   });
